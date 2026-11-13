@@ -1,0 +1,114 @@
+<view class="detail-page">
+  <view class="page-heading">
+    <text class="page-eyebrow">日期与计入规则</text>
+    <view class="page-title">本期明细</view>
+    <view class="page-description">每一天如何计入，都清楚可查。</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="notice notice-loading">正在核对日期，请稍候…</view>
+  <view wx:if="{{error}}" class="notice">{{error}}</view>
+  <view wx:if="{{holidayWarning}}" class="notice">{{holidayWarning}}</view>
+
+  <block wx:if="{{detail && schedule}}">
+    <view class="summary-card">
+      <view class="card-heading">
+        <text class="section-title">本期结算区间</text>
+        <text class="cycle-badge">第 {{schedule.cycleIndex}} 期</text>
+      </view>
+      <view class="date-range">
+        <view class="range-end">
+          <text class="range-label">开始计入</text>
+          <text class="range-date">{{detail.cycleStart}}</text>
+        </view>
+        <view class="range-connector"></view>
+        <view class="range-end range-end-right">
+          <text class="range-label">发薪日 · {{schedule.nextWeekday}}</text>
+          <text class="range-date range-date-payday">{{detail.settlementDate}}</text>
+        </view>
+      </view>
+      <view class="summary-counts">
+        <view class="summary-count">
+          <view><text class="count-value">{{detail.totalWorkdays}}</text><text class="count-unit">天</text></view>
+          <text class="count-label">计入周期</text>
+        </view>
+        <view class="summary-count">
+          <view><text class="count-value count-value-muted">{{detail.skipped}}</text><text class="count-unit">天</text></view>
+          <text class="count-label">休息或跳过</text>
+        </view>
+      </view>
+      <view class="summary-note">第 {{detail.totalWorkdays}} 个计入日，就是本期发薪日。</view>
+    </view>
+
+    <view wx:if="{{calendarMonth}}" class="calendar-card">
+      <view class="card-heading">
+        <text class="section-title">本期日历</text>
+        <text class="section-caption">点日期可调整</text>
+      </view>
+      <view class="month-navigation">
+        <button class="month-button" disabled="{{!calendarMonth.canPrevious}}" data-step="-1" bindtap="onMonthChange" aria-label="查看上一月">上月</button>
+        <text class="month-title">{{calendarMonth.title}}</text>
+        <button class="month-button" disabled="{{!calendarMonth.canNext}}" data-step="1" bindtap="onMonthChange" aria-label="查看下一月">下月</button>
+      </view>
+      <view class="week-heading">
+        <text wx:for="{{calendarWeekdays}}" wx:key="*this" class="week-label">{{item}}</text>
+      </view>
+      <view class="month-grid">
+        <view
+          wx:for="{{calendarMonth.cells}}"
+          wx:key="key"
+          class="calendar-cell calendar-cell-{{item.kind}}"
+          data-date="{{item.date}}"
+          bindtap="onDayTap"
+          aria-label="{{item.accessibilityLabel}}"
+        >
+          <view class="calendar-cell-inner">
+            <text class="calendar-number">{{item.number}}</text>
+            <text class="calendar-day-label">{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="calendar-legend">
+        <view class="legend-item"><view class="legend-mark legend-work"></view><text>计入</text></view>
+        <view class="legend-item"><view class="legend-mark legend-rest"></view><text>休息</text></view>
+        <view class="legend-item"><view class="legend-mark legend-payday"></view><text>发薪日</text></view>
+        <text class="legend-outside">浅色日期不在本期</text>
+      </view>
+    </view>
+
+    <view class="daily-card">
+      <view class="card-heading daily-heading">
+        <text class="section-title">每日计入明细</text>
+        <text class="section-caption">当前月 · {{monthDays.length}} 天</text>
+      </view>
+      <view
+        wx:for="{{monthDays}}"
+        wx:key="date"
+        class="day-row {{item.isSettlement ? 'day-row-payday' : ''}}"
+        data-date="{{item.date}}"
+        bindtap="onDayTap"
+      >
+        <view class="day-date-group">
+          <text class="day-date">{{item.shortDate}}</text>
+          <text class="day-weekday">{{item.weekday}}</text>
+        </view>
+        <view class="day-reason-group">
+          <text class="day-reason">{{item.label}}</text>
+          <text wx:if="{{item.isSettlement}}" class="day-payday-caption">本期发薪日</text>
+        </view>
+        <text class="day-count {{item.work ? 'day-count-work' : 'day-count-rest'}}">{{item.work ? '第 ' + item.count + ' 天' : '不计入'}}</text>
+      </view>
+    </view>
+
+    <view class="explanation">
+      <view class="explanation-title">临时调整如何生效</view>
+      <view>标记上班或休息后，会重新计算发薪日期。这只影响日期计数，不等于扣工资或加薪。</view>
+      <view class="explanation-settings">长期安排有变化，可到 <text class="text-link" bindtap="goSettings">设置</text> 修改每周休息日或结算起点。</view>
+    </view>
+  </block>
+
+  <view wx:elif="{{!loading}}" class="empty-card">
+    <view class="empty-title">还没有可查看的明细</view>
+    <view class="empty-description">检查开始日期、结算起点和休息安排后，就能查看每一天的计入情况。</view>
+    <button class="primary-button" bindtap="goSettings">前往设置</button>
+  </view>
+</view>

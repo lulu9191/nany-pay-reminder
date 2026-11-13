@@ -1,0 +1,45 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/settings/settings",
+    "pages/records/records",
+    "pages/detail/detail",
+    "pages/payslip/payslip"
+  ],
+  "window": {
+    "navigationBarTitleText": "小新发薪",
+    "navigationBarBackgroundColor": "#f8f6f2",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f8f6f2",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "tabBar": {
+    "color": "#756d65",
+    "selectedColor": "#a94f37",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "icons/home.png",
+        "selectedIconPath": "icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/records/records",
+        "text": "记录",
+        "iconPath": "icons/records.png",
+        "selectedIconPath": "icons/records-active.png"
+      },
+      {
+        "pagePath": "pages/settings/settings",
+        "text": "设置",
+        "iconPath": "icons/settings.png",
+        "selectedIconPath": "icons/settings-active.png"
+      }
+    ]
+  }
+}

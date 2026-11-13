@@ -1,0 +1,45 @@
+<view class="page">
+  <view class="page-heading">
+    <view class="page-title">把辛苦，认真记下</view>
+    <view class="page-sub">核对后，将这期发薪日历分享给对方。</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="message-card">正在生成本期发薪单…</view>
+  <view wx:elif="{{error}}" class="message-card">
+    <view class="message-title">暂时无法生成</view>
+    <view class="message-copy">{{error}}</view>
+    <view class="message-actions">
+      <button class="secondary-button" bindtap="loadRecord">重新生成</button>
+      <button class="primary-button" bindtap="editRecord">查看记录</button>
+    </view>
+  </view>
+  <block wx:else>
+    <view wx:if="{{needsConfirmation}}" class="notice">
+      <view class="notice-title">请先核对这期工作日</view>
+      <view>这条旧记录没有保存当时的日历，下图按当前上班安排还原。确认无误后保存，以后调整安排不会改变这张发薪单的日期。</view>
+    </view>
+    <view wx:if="{{notice}}" class="notice">{{notice}}</view>
+    <view wx:if="{{images.length > 1}}" class="pagination">
+      <button bindtap="changeImage" data-step="-1" disabled="{{imageIndex === 0 || actionBusy}}" aria-label="上一张">上一张</button>
+      <text>第 {{imageIndex + 1}} / {{images.length}} 张</text>
+      <button bindtap="changeImage" data-step="1" disabled="{{imageIndex === images.length - 1 || actionBusy}}" aria-label="下一张">下一张</button>
+    </view>
+    <image wx:if="{{currentImage}}" class="poster-image" src="{{currentImage}}" mode="widthFix" bindtap="previewImage" show-menu-by-longpress="{{!needsConfirmation}}" aria-label="本期发薪日历图片" />
+    <view wx:if="{{images.length > 1}}" class="help-text">本期明细共 {{images.length}} 张，请逐张保存或分享。</view>
+    <view wx:if="{{needsConfirmation}}" class="actions">
+      <button class="primary-button full-button" bindtap="confirmSnapshot" loading="{{confirming}}" disabled="{{confirming}}">日历无误，保存本期明细</button>
+    </view>
+    <view wx:else class="actions">
+      <button class="secondary-button" bindtap="saveImage" disabled="{{actionBusy}}">保存图片</button>
+      <button class="primary-button" bindtap="shareImage" disabled="{{actionBusy}}">分享图片</button>
+    </view>
+    <view wx:if="{{albumDenied}}" class="notice">
+      <view>保存图片需要相册权限，开启后再点「保存图片」。也可以直接分享。</view>
+      <button class="permission-button" bindtap="openAlbumSettings">打开相册权限</button>
+    </view>
+    <button class="edit-button" bindtap="editRecord" disabled="{{actionBusy || confirming}}">修改称呼、金额或发薪说明</button>
+    <view class="help-text">私人备注不会出现在图片里。修改后请重新生成并发送。</view>
+  </block>
+
+  <canvas type="2d" id="payslip-canvas" class="export-canvas" style="height: {{canvasHeight}}px;" />
+</view>

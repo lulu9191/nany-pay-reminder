@@ -1,0 +1,39 @@
+{
+  "description": "小新发薪 · 发薪日历与记录",
+  "packOptions": {
+    "ignore": [
+      {
+        "type": "folder",
+        "value": "tests"
+      },
+      {
+        "type": "folder",
+        "value": ".workbuddy"
+      },
+      {
+        "type": "folder",
+        "value": "assets"
+      },
+      {
+        "type": "file",
+        "value": "小程序项目档案.md"
+      },
+      {
+        "type": "suffix",
+        "value": ".genie"
+      }
+    ],
+    "include": []
+  },
+  "setting": {
+    "bundle": false,
+    "es6": true,
+    "minified": true,
+    "postcss": true,
+    "urlCheck": true
+  },
+  "compileType": "miniprogram",
+  "appid": "wx5fe1f31e015dd2ac",
+  "projectname": "小新发薪",
+  "miniprogramRoot": "./"
+}

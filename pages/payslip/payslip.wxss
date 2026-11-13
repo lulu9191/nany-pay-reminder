@@ -1,0 +1,21 @@
+.page { min-height: 100vh; padding: 36rpx 28rpx; padding-bottom: calc(40rpx + env(safe-area-inset-bottom)); background: #f8f4ee; color: #49372c; }
+.page-heading { margin: 4rpx 8rpx 28rpx; }
+.page-title { font-size: 38rpx; font-weight: 600; }
+.page-sub { margin-top: 10rpx; font-size: 25rpx; color: #807166; }
+.poster-image { display: block; width: 100%; height: auto; border-radius: 12rpx; }
+.message-card { padding: 36rpx; background: #fffaf3; border-radius: 20rpx; font-size: 28rpx; }
+.message-title, .notice-title { margin-bottom: 12rpx; font-weight: 600; }
+.message-copy { color: #807166; line-height: 1.7; }
+.message-actions, .actions { display: flex; gap: 20rpx; margin-top: 28rpx; }
+.primary-button, .secondary-button { display: flex; align-items: center; justify-content: center; flex: 1; min-height: 92rpx; padding: 20rpx; border-radius: 18rpx; font-size: 28rpx; line-height: 1.5; }
+.primary-button { background: #905b42; color: #fffaf3; }
+.secondary-button { background: #fffaf3; border: 1rpx solid #dbc6b6; color: #694a36; }
+.full-button { width: 100%; }
+.notice { margin-bottom: 24rpx; padding: 24rpx 28rpx; background: #f1e3d6; border-radius: 16rpx; color: #74513a; font-size: 25rpx; line-height: 1.7; }
+.actions + .notice { margin-top: 24rpx; }
+.pagination { display: flex; align-items: center; justify-content: space-between; gap: 20rpx; margin-bottom: 20rpx; color: #807166; font-size: 25rpx; }
+.pagination button { min-height: 80rpx; padding: 18rpx 24rpx; border-radius: 16rpx; color: #694a36; background: #fffaf3; font-size: 25rpx; }
+.help-text { margin: 20rpx 8rpx 0; text-align: center; font-size: 23rpx; line-height: 1.7; color: #807166; }
+.edit-button { margin: 24rpx auto 0; min-height: 80rpx; padding: 18rpx; color: #8e583d; font-size: 26rpx; }
+.permission-button { margin-top: 18rpx; padding: 14rpx 20rpx; border-radius: 12rpx; background: #fffaf3; color: #694a36; font-size: 25rpx; }
+.export-canvas { position: fixed; left: -10000px; top: 0; width: 750px; pointer-events: none; }

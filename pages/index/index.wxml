@@ -1,0 +1,98 @@
+<view class="page">
+  <view class="page-heading">
+    <view>
+      <view class="eyebrow">{{greeting}}，安心安排每一期</view>
+      <view class="page-title">小新发薪</view>
+    </view>
+    <view class="today-chip">{{todayText}}</view>
+  </view>
+
+  <view wx:if="{{!hasConfig}}" class="empty-card">
+    <view class="empty-mark">薪</view>
+    <view class="empty-title">把发薪日，安排妥当</view>
+    <view class="empty-desc">设好工作日期与休息安排，接下来的发薪日就交给我们。</view>
+    <button class="primary-btn" bindtap="goSettings">设置发薪计划</button>
+    <view class="empty-foot">免登录 · 数据保存在本机</view>
+  </view>
+  <view wx:elif="{{!schedule}}" class="empty-card">
+    <view class="empty-title">还无法算出发薪日</view>
+    <view class="empty-desc">检查开始日期、结算起点和休息安排，至少保留一个每周工作日。</view>
+    <button class="primary-btn" bindtap="goSettings">检查设置</button>
+  </view>
+  <block wx:else>
+    <view wx:if="{{status.key === 'overdue'}}" class="overdue-card">
+      <view class="section-head">
+        <text class="overdue-title">有一期发薪待补记</text>
+        <text class="status-pill status-overdue">第 {{status.cycle}} 期</text>
+      </view>
+      <view class="overdue-copy">{{status.desc}}</view>
+      <button class="primary-btn" disabled="{{scheduleLoading || dataError}}" bindtap="onStatusBtn">{{status.btn}}</button>
+    </view>
+
+    <view class="hero-card">
+      <view class="section-head">
+        <text class="hero-label">{{schedule.isPaydayToday ? '今天发薪' : '下次发薪'}}</text>
+        <text class="status-pill {{status.key === 'done' ? 'status-done' : ''}}">{{status.key === 'overdue' ? '第 ' + schedule.cycleIndex + ' 期' : status.tag || '核对中'}}</text>
+      </view>
+      <view class="hero-main">
+        <view class="hero-date-group">
+          <view class="hero-date">{{payDateText}}</view>
+          <view class="hero-caption">{{schedule.nextWeekday}} · 第 {{schedule.cycleIndex}} 期</view>
+        </view>
+        <view class="countdown">
+          <view><text class="countdown-value">{{schedule.remainingNaturalDays}}</text><text class="countdown-unit">天</text></view>
+          <view class="countdown-label">{{schedule.isPaydayToday ? '今天到期' : '距发薪日'}}</view>
+        </view>
+      </view>
+      <view class="progress-head">
+        <text>本期已计入</text>
+        <text class="progress-count">{{schedule.doneWorkdays}} <text class="progress-total">/ {{cycleDays}} 天</text></text>
+      </view>
+      <view class="progress-track"><view class="progress-fill" style="width: {{schedule.progressPercent}}%;"></view></view>
+      <view wx:if="{{status.key === 'done' || status.key === 'fresh'}}" class="hero-note">{{status.desc}}</view>
+      <button wx:if="{{status && status.key !== 'overdue'}}" class="primary-btn {{status.key === 'done' ? 'completed-btn' : ''}}" disabled="{{scheduleLoading || dataError}}" bindtap="onStatusBtn">{{status.btn}}</button>
+      <button class="detail-link" bindtap="goDetail">
+        <view class="detail-link-copy"><text>本期 {{cycleRangeText}}</text><text class="detail-link-rule">每 {{cycleDays}} 个工作日 · {{restText}}</text></view>
+        <text class="link-arrow">明细 ›</text>
+      </button>
+    </view>
+
+    <view wx:if="{{scheduleLoading}}" class="inline-notice">正在核对日期，请稍候…</view>
+    <view wx:if="{{holidayWarning}}" class="inline-notice warning-notice"><text class="notice-label">日期估算</text>{{holidayWarning}}</view>
+    <view wx:if="{{dataError}}" class="inline-notice warning-notice">{{dataError}}</view>
+
+    <view class="reminder-card">
+      <view class="section-head">
+        <view class="section-title">日历提醒</view>
+        <text class="quiet-badge">{{calendarReviewRequired ? '待更新' : addedCount ? '已添加 ' + addedCount + ' 期' : '未添加'}}</text>
+      </view>
+      <view class="card-copy">{{calendarReviewRequired ? '规则已变化，请先到系统日历处理旧提醒，再添加新计划。' : calendarSummary}}</view>
+      <button class="secondary-btn" disabled="{{scheduleLoading || dataError}}" bindtap="onAddToCalendar">{{calendarBtnText}}</button>
+      <view class="reminder-foot">当天 9:00 提醒 · 实际通知以系统日历设置为准</view>
+    </view>
+
+    <view class="section-head section-heading">
+      <text class="section-title">接下来的发薪日</text>
+      <text class="section-sub">按当前安排推算</text>
+    </view>
+    <view class="schedule-card">
+      <view wx:for="{{futureRows}}" wx:key="date" class="schedule-row">
+        <view class="date-tile {{item.isNext ? 'date-tile-next' : ''}}"><text class="date-month">{{item.month}}</text><text class="date-day">{{item.day}}</text></view>
+        <view class="schedule-main"><view class="schedule-name">第 {{item.cycle}} 期发薪</view><view class="schedule-sub">{{item.year}} 年 · {{item.weekday}}</view></view>
+        <text class="next-tag" wx:if="{{item.isNext}}">下次</text>
+        <text wx:else class="schedule-pending">待到期</text>
+      </view>
+      <button wx:if="{{schedule.schedule.length > 3}}" class="expand-btn" bindtap="onToggleSchedule">{{scheduleExpanded ? '收起计划 ∧' : '查看全部 ' + schedule.schedule.length + ' 期 ›'}}</button>
+    </view>
+
+    <view class="section-head section-heading">
+      <text class="section-title">最近发薪</text>
+      <button class="text-btn" bindtap="goRecords">全部记录 ›</button>
+    </view>
+    <button wx:if="{{latestRecord}}" class="recent-card" bindtap="goRecords">
+      <view class="recent-main"><view class="schedule-name">第 {{latestRecord.cycle}} 期</view><view class="schedule-sub">{{latestRecord.dateText}} 已记录</view></view>
+      <text class="recent-amount">{{latestRecord.amountText}}</text>
+    </button>
+    <view wx:else class="recent-empty">{{dataError ? '暂时无法读取记录' : '还没有发薪记录，每一次实发都可以留在这里。'}}</view>
+  </block>
+</view>

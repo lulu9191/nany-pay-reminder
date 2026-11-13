@@ -1,0 +1,127 @@
+<view class="page">
+  <view class="page-heading">
+    <view class="page-title">发薪记录</view>
+    <view class="page-sub">每一期，都记得清楚</view>
+  </view>
+
+  <view class="summary-card">
+    <view class="summary-label">累计已记录金额</view>
+    <view class="summary-amount"><text class="summary-currency">¥</text>{{totalAmountText}}</view>
+    <view class="summary-foot">
+      <text>已记录 {{records.length}} 期</text>
+      <text class="summary-hint">金额可留空</text>
+    </view>
+  </view>
+
+  <view wx:if="{{loadError}}" class="form-notice">{{loadError}}</view>
+
+  <view wx:if="{{lastSavedRecordId && !loadError}}" class="saved-slip">
+    <view><view class="saved-slip-title">发薪记录已保存</view><view class="saved-slip-copy">做成一张带工作日历的发薪单</view></view>
+    <button class="slip-entry" bindtap="onOpenLastSlip">生成发薪单</button>
+  </view>
+
+  <view wx:if="{{records.length}}" class="record-list">
+    <view wx:for="{{recordGroups}}" wx:key="month" wx:for-item="group" class="month-group">
+      <view class="month-heading">
+        <text class="month-title">{{group.title}}</text>
+        <text class="month-count">{{group.records.length}} 期</text>
+      </view>
+      <view class="month-card">
+        <view wx:for="{{group.records}}" wx:key="id" wx:for-item="record" class="record-row" data-id="{{record.id}}" bindtap="onEditTap" hover-class="record-row-hover">
+          <view class="record-info">
+            <view class="record-cycle">第 {{record.cycle}} 期</view>
+            <view class="record-date">{{record.dateText}} 发薪</view>
+            <view wx:if="{{record.note}}" class="record-note">{{record.note}}</view>
+          </view>
+          <view class="record-right">
+            <text class="record-amount {{record.hasAmount ? '' : 'record-amount-none'}}">{{record.amountText}}</text>
+            <view class="row-chevron"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="list-hint">点开一条记录，可查看详情或修改</view>
+  </view>
+
+  <view wx:else class="empty-card">
+    <view class="empty-mark"><view></view><view></view><view></view></view>
+    <view class="empty-title">从第一笔记录开始</view>
+    <view class="empty-copy">记下实际发薪日期，金额与备注按需填写。</view>
+  </view>
+
+  <button class="cta-btn" bindtap="onAddTap" disabled="{{!!loadError}}">记录一期发薪</button>
+  <view class="remind-tip">记录不会改变下一期发薪日期</view>
+
+  <view wx:if="{{showForm}}" class="mask" bindtap="closeForm" catchtouchmove="stopBubble">
+    <view class="sheet" catchtap="stopBubble">
+      <view class="sheet-header">
+        <view>
+          <view class="sheet-title">{{isEdit ? '发薪记录详情' : '记录发薪'}}</view>
+          <view class="sheet-subtitle">按实际发薪情况填写</view>
+        </view>
+        <button class="sheet-close" bindtap="closeForm" disabled="{{saving}}" aria-label="关闭发薪表单">关闭</button>
+      </view>
+
+      <scroll-view class="sheet-body" scroll-y="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}">
+        <view class="sheet-body-inner">
+          <view wx:if="{{formLoading}}" class="sheet-cycle">正在读取发薪期数…</view>
+          <view wx:elif="{{isEdit}}" class="cycle-summary">
+            <text class="cycle-number">第 {{form.cycle}} 期</text>
+            <text wx:if="{{form.plannedDate}}" class="cycle-planned">应发 {{form.plannedDate}}</text>
+          </view>
+          <view wx:else class="sheet-field sheet-field-first">
+            <text class="sheet-label">发薪期数</text>
+            <picker range="{{periods}}" range-key="label" value="{{selectedPeriodIndex}}" bindchange="onCycleChange" disabled="{{!periods.length || saving}}">
+              <view class="sheet-value">
+                <text>{{form.cycle ? '第 ' + form.cycle + ' 期 · 应发 ' + form.plannedDate : '暂未获取到可记录的期数'}}</text>
+                <view class="picker-chevron"></view>
+              </view>
+            </picker>
+            <view class="field-hint">可以补记历史，也可以提前记录</view>
+          </view>
+          <view wx:if="{{formNotice}}" class="form-notice">{{formNotice}}</view>
+
+          <view class="sheet-field">
+            <text class="sheet-label">实际发薪日期</text>
+            <picker mode="date" value="{{form.actualDate}}" bindchange="onActualDateChange" disabled="{{saving}}">
+              <view class="sheet-value"><text>{{form.actualDate || '请选择日期'}}</text><view class="picker-chevron"></view></view>
+            </picker>
+          </view>
+
+          <view class="sheet-field">
+            <text class="sheet-label">实发金额<text class="label-optional">可不填</text></text>
+            <view class="amount-field">
+              <text class="amount-prefix">¥</text>
+              <input class="sheet-input amount-input" type="digit" value="{{form.amount}}" placeholder="0.00" placeholder-class="input-placeholder" bindinput="onAmountInput" disabled="{{saving}}" cursor-spacing="120" />
+            </view>
+          </view>
+
+          <view class="sheet-field">
+            <text class="sheet-label">对方称呼<text class="label-optional">可不填</text></text>
+            <input class="sheet-input" value="{{form.recipientName}}" maxlength="40" placeholder="如：王阿姨" placeholder-class="input-placeholder" bindinput="onRecipientInput" disabled="{{saving}}" cursor-spacing="120" />
+            <view class="field-hint">发薪单开头会写「{{form.recipientName ? form.recipientName + '，' : ''}}辛苦了」</view>
+          </view>
+
+          <view class="sheet-field">
+            <text class="sheet-label">给对方的说明<text class="label-optional">可不填</text></text>
+            <textarea class="sheet-input share-note" value="{{form.shareNote}}" maxlength="500" placeholder="如：本期含补贴 300 元。" placeholder-class="input-placeholder" bindinput="onShareNoteInput" disabled="{{saving}}" cursor-spacing="120" />
+            <view class="field-hint">这段说明会出现在发薪单图片上</view>
+          </view>
+
+          <view class="sheet-field">
+            <text class="sheet-label">私人备注<text class="label-optional">可不填</text></text>
+            <input class="sheet-input" value="{{form.note}}" placeholder="仅供自己记录" placeholder-class="input-placeholder" bindinput="onNoteInput" disabled="{{saving}}" cursor-spacing="120" />
+            <view class="field-hint">不会出现在发薪单里</view>
+          </view>
+
+          <button wx:if="{{isEdit}}" class="revoke-btn" bindtap="onDelete" disabled="{{saving}}">撤销这条记录</button>
+        </view>
+      </scroll-view>
+
+      <view class="sheet-footer">
+        <button wx:if="{{isEdit}}" class="sheet-preview" bindtap="onPreviewSlip" disabled="{{formLoading || saving || !form.cycle || !!loadError}}">保存并预览发薪单</button>
+        <button class="sheet-save" bindtap="onSave" loading="{{saving}}" disabled="{{formLoading || saving || !form.cycle || !!loadError}}">{{isEdit ? '保存修改' : '保存记录'}}</button>
+      </view>
+    </view>
+  </view>
+</view>

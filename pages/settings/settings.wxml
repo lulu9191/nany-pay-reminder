@@ -1,0 +1,101 @@
+<view class="page">
+  <view class="page-heading">
+    <view class="page-title">发薪设置</view>
+    <view class="page-sub">按你们约定的工作安排来计算</view>
+  </view>
+
+  <view class="section-heading">工作安排</view>
+  <view class="form-card">
+    <picker mode="date" value="{{startDate || today}}" end="{{today}}" bindchange="onStartDateChange">
+      <view class="form-row">
+        <view class="form-text">
+          <view class="form-label">开始工作日期</view>
+          <view class="form-desc">周期从上班的第一天起算</view>
+        </view>
+        <view class="picker-end">
+          <text class="picker-value {{startDate ? '' : 'picker-placeholder'}}">{{startDate || '请选择'}}</text>
+          <view class="chevron"></view>
+        </view>
+      </view>
+    </picker>
+
+    <picker mode="selector" range="{{cycleOptions}}" value="{{cycleIndex}}" bindchange="onCycleChange">
+      <view class="form-row form-row-line">
+        <view class="form-text">
+          <view class="form-label">结算周期</view>
+          <view class="form-desc">每满 {{cycleDays}} 个工作日结算一次</view>
+        </view>
+        <view class="picker-end">
+          <text class="picker-value">{{cycleDays}} 个工作日</text>
+          <view class="chevron"></view>
+        </view>
+      </view>
+    </picker>
+
+    <view class="form-row form-row-line form-row-block">
+      <view class="form-label">每周休息日</view>
+      <view class="form-desc">选中的日期休息，不选表示全周上班</view>
+      <view class="week-chips">
+        <button
+          wx:for="{{weekChips}}"
+          wx:key="value"
+          class="week-chip {{item.active ? 'week-chip-active' : ''}}"
+          data-value="{{item.value}}"
+          bindtap="onWeekChipTap"
+          hover-class="button-pressed"
+        >{{item.label}}</button>
+      </view>
+    </view>
+
+    <view class="form-row form-row-line holiday-row">
+      <view class="form-text">
+        <view class="form-label">跟随法定节假日</view>
+        <view class="form-desc">节假日不计入，调休补班日计入。约定节假日照常上班，可关闭。</view>
+      </view>
+      <switch class="holiday-switch" checked="{{followHoliday}}" color="#C36549" bindchange="onHolidayChange" />
+    </view>
+  </view>
+  <view class="section-note">临时上班或休息，可在首页的计算明细里调整。</view>
+
+  <view class="section-heading section-heading-gap">高级调整</view>
+  <view class="form-card advanced-card">
+    <button class="advanced-toggle" bindtap="onAdvancedToggle" hover-class="button-pressed">
+      <view class="form-text">
+        <view class="form-label">调整结算起点</view>
+        <view class="form-desc {{anchorOverride ? 'anchor-summary-active' : ''}}">{{anchorOverride ? '已设置：' + anchorOverride : '需要重新起算时再设置'}}</view>
+      </view>
+      <view class="toggle-end">
+        <text>{{advancedOpen ? '收起' : '展开'}}</text>
+        <view class="chevron chevron-down {{advancedOpen ? 'chevron-open' : ''}}"></view>
+      </view>
+    </button>
+    <view wx:if="{{advancedOpen}}" class="advanced-content">
+      <view class="advanced-description">仅实际工作安排变化时调整。晚发工资只需记录实际日期，后续排期不变。</view>
+      <view class="anchor-row">
+        <picker class="anchor-picker" mode="date" value="{{anchorOverride || startDate || today}}" start="{{startDate || today}}" bindchange="onAnchorChange">
+          <view class="anchor-value {{anchorOverride ? '' : 'picker-placeholder'}}">
+            <text>{{anchorOverride || '选择新的结算起点'}}</text>
+            <view class="chevron"></view>
+          </view>
+        </picker>
+        <button wx:if="{{anchorOverride}}" class="anchor-clear" bindtap="onAnchorClear" hover-class="button-pressed">清除</button>
+      </view>
+      <view class="anchor-note">清除后恢复从开始工作日期计算。</view>
+    </view>
+  </view>
+
+  <button class="cta-btn" bindtap="onSave" hover-class="button-pressed">保存设置</button>
+  <view class="save-note">记录已发薪，不会改变后续发薪日期。</view>
+
+  <view class="section-heading section-heading-gap backup-heading">数据备份</view>
+  <view class="form-card backup-card">
+    <view class="form-label">把记录留一份备份</view>
+    <view class="backup-description">数据保存在本机。换手机或删除小程序前，建议导出到微信文件传输助手。</view>
+    <view class="backup-actions">
+      <button class="backup-btn backup-btn-main" bindtap="onExportBackup" hover-class="button-pressed">导出备份</button>
+      <button class="backup-btn" bindtap="onImportBackup" hover-class="button-pressed">导入恢复</button>
+    </view>
+    <view class="backup-note">恢复会覆盖当前数据，系统日历提醒需重新添加。</view>
+  </view>
+  <view class="privacy-note">无需登录，发薪记录只保存在你的设备上。</view>
+</view>
